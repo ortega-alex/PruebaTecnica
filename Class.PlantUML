@@ -1,0 +1,196 @@
+@startuml
+' Establecer algunas opciones de estilo
+skinparam backgroundColor #EEEBDC
+skinparam classBorderColor black
+skinparam classFontColor black
+skinparam associationLineColor black
+
+' Definición de las clases principales con métodos
+class Customer {
+  +id: int
+  +name: string
+  +code: string
+  +registrationDate: DateTime
+  +address: string
+  +email: string
+  +phoneNumber: string
+  +isActive: bool
+  +updateInformation(name: string, address: string, email: string, phone: string): void
+}
+
+class Service {
+  +id: int
+  +description: string
+  +monthlyCost: decimal
+  +isActive: bool
+}
+
+class InternetService extends Service {
+  +speed: string
+  +upgradeSpeed(): void
+}
+
+class CableService extends Service {
+  +serviceType: string
+  +installationAddress: string
+}
+
+class ServiceSetting {
+  +id: int
+  +name: string
+  +description: string
+  +isActive: bool
+}
+
+class ServiceType {
+  +id: int
+  +name: string
+  +isActive: bool
+}
+
+class ServiceLocation {
+  +id: int
+  +city: string
+  +zone: string
+  +isActive: bool
+}
+
+class Contract {
+  +id: int
+  +startDate: DateTime
+  +endDate: DateTime
+  +paymentPeriod: string
+  +discountPercentage: decimal
+  +isActive: bool
+  +applyDiscount(discount: DiscountSetting): void
+  +calculateTotalAmount(): decimal
+  +suspendServices(): void
+  +reactivateServices(): void
+}
+
+class ContractDetail {
+  +id: int
+  +price: decimal
+  +serviceStartDate: DateTime
+  +billingFrequency: string
+  +isActive: bool
+  +calculateSubtotal(): decimal
+}
+
+class DiscountSetting {
+  +id: int
+  +name: string
+  +description: string
+  +discountPercentage: decimal
+  +conditionType: string
+  +conditionValue: string
+  +serviceUpgrade: string
+  +isActive: bool
+}
+
+class Bill {
+  +id: int
+  +number: string
+  +invoiceDate: DateTime
+  +dueDate: DateTime
+  +totalAmount: decimal
+  +isActive: bool
+  +generateInvoice(): void
+  +sendPaymentReminder(): void
+  +isOverdue(): bool
+}
+
+class BillDetail {
+  +id: int
+  +serviceAmount: decimal
+  +billingPeriod: string
+  +isActive: bool
+}
+
+class Payment {
+  +id: int
+  +paymentDate: DateTime
+  +amount: decimal
+  +method: string
+  +isActive: bool
+}
+
+class SuspendedService {
+  +id: int
+  +suspensionDate: DateTime
+  +reason: string
+  +reactivationDate: DateTime
+  +isActive: bool
+}
+
+' Módulo de RRHH
+class EmployeeType {
+  +id: int
+  +name: string
+  +isActive: bool
+}
+
+class Employee {
+  +id: int
+  +name: string
+  +employeeTypeId: int
+  +baseSalary: decimal
+  +hireDate: DateTime
+  +isActive: bool
+  +calculateNetSalary(): decimal
+}
+
+class Payroll {
+  +id: int
+  +employeeId: int
+  +periodStart: DateTime
+  +periodEnd: DateTime
+  +grossSalary: decimal
+  +igssContribution: decimal
+  +isrRetention: decimal
+  +netSalary: decimal
+  +paymentDate: DateTime
+  +isPaid: bool
+  +generatePaymentReceipt(): void
+}
+
+' Métodos para Reportes (ejemplos)
+class ReportGenerator {
+  +generateMorosityReport(): List<Customer, decimal>
+  +analyzeServiceProfitability(serviceType: ServiceType, location: ServiceLocation, periodStart: DateTime, periodEnd: DateTime): decimal
+  +getSalesStatistics(periodStart: DateTime, periodEnd: DateTime): Map<DateTime, decimal>
+  +getRetentionStatistics(periodStart: DateTime, periodEnd: DateTime): decimal
+}
+
+' Definición de las relaciones entre las clases
+Customer "1" -- "*" Contract : has >
+Contract "*" -- "*" ContractDetail : includes >
+ContractDetail "*" -- "1" Service : refersTo >
+Service "1" -- "1" ServiceSetting : configuredBy >
+Service "1" -- "1" ServiceType : isOfType >
+Service "1" -- "1" ServiceLocation : locatedAt >
+Contract "*" -- "*" DiscountSetting : applies >
+Contract "1" -- "*" Bill : generates >
+Bill "*" -- "*" BillDetail : has >
+BillDetail "*" -- "1" Service : refersTo >
+Bill "1" -- "*" Payment : receives >
+Contract "*" -- "*" SuspendedService : has >
+Customer "1" -- "*" SuspendedService : has >
+
+InternetService --|> Service : extends
+CableService --|> Service : extends
+
+Employee "1" -- "1" EmployeeType : isA >
+Employee "1" -- "*" Payroll : has >>
+Payroll "*" -- "1" Employee : for <<
+
+' Relación para el generador de reportes (podría haber otras formas de modelarlo)
+ReportGenerator "1" -- "*" Customer : uses >
+ReportGenerator "1" -- "*" Contract : uses >
+ReportGenerator "1" -- "*" Bill : uses >
+ReportGenerator "1" -- "*" Payment : uses >
+ReportGenerator "1" -- "*" Service : uses >
+ReportGenerator "1" -- "*" ServiceType : uses >
+ReportGenerator "1" -- "*" ServiceLocation : uses >
+
+@enduml
